@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Martin's Training</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: one 960px column — Next up, this week, then plan/paces/goals, then volume history. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #11161d; --ink-2: #4a5462; --muted: #788293; --line: #e0e5ec;
+  --accent: #2a78d6; --accent-soft: #e5effb;
+  --easy: #1baf7a; --long: #2a78d6; --quality: #eb6834; --test: #6250d6; --strength: #8a93a3; --rest: #c3c9d3;
+  --good: #008300; --warn: #a86f00;
+  --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1217; --surface: #171b22; --ink: #eef1f5; --ink-2: #b5bdca; --muted: #8590a0; --line: #2a313b;
+  --accent: #3987e5; --accent-soft: #1b2a3e;
+  --easy: #199e70; --long: #3987e5; --quality: #d95926; --test: #9085e9; --strength: #6e7787; --rest: #4a525e;
+  --good: #0ca30c; --warn: #c98500; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1217; --surface: #171b22; --ink: #eef1f5; --ink-2: #b5bdca; --muted: #8590a0; --line: #2a313b;
+  --accent: #3987e5; --accent-soft: #1b2a3e;
+  --easy: #199e70; --long: #3987e5; --quality: #d95926; --test: #9085e9; --strength: #6e7787; --rest: #4a525e;
+  --good: #0ca30c; --warn: #c98500; color-scheme: dark; }
+
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--body); }
+.wrap { max-width: 960px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 28px; }
+h1, h2, .num { font-family: var(--display); font-weight: 700; letter-spacing: .01em; }
+h1 { font-size: clamp(30px, 6vw, 44px); line-height: 1; margin: 0; text-wrap: balance; }
+h2 { font-size: 22px; margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; }
+.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.muted { color: var(--muted); } .small { font-size: 13px; }
+.tab { font-variant-numeric: tabular-nums; }
+
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; }
+.weekdots { display: flex; gap: 6px; align-items: center; }
+.weekdots span { width: 34px; height: 8px; border-radius: 4px; background: var(--line); }
+.weekdots span.past { background: var(--ink-2); } .weekdots span.now { background: var(--accent); }
+
+/* Next up */
+.next { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px;
+  display: grid; gap: 14px; border-left: 6px solid var(--c, var(--accent)); }
+.next .when { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.next .when .num { font-size: 18px; text-transform: uppercase; color: var(--c); }
+.next h3 { font: 700 clamp(26px, 5vw, 34px)/1.05 var(--display); margin: 0; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.steps li { padding: 8px 12px; background: var(--bg); border-radius: 8px; font-variant-numeric: tabular-nums; }
+.purpose { color: var(--ink-2); margin: 0; max-width: 65ch; }
+.also { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* chips */
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 2px 9px;
+  border-radius: 999px; background: var(--bg); color: var(--ink-2); white-space: nowrap; }
+.chip.done { color: var(--good); } .chip.missed { color: var(--warn); } .chip.today { color: var(--accent); background: var(--accent-soft); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: none; }
+
+/* week grid */
+.weekhead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+.weekhead h2 { margin: 0; }
+.weeknav { display: flex; gap: 6px; }
+.weeknav button { font: 600 13px var(--body); border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: 8px; padding: 5px 12px; cursor: pointer; }
+.weeknav button:disabled { opacity: .4; cursor: default; }
+.weeknav button:focus-visible, .bar:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.day { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.day.is-today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.day .dh { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.sess { border-top: 3px solid var(--c); padding-top: 6px; display: grid; gap: 4px; min-width: 0; }
+.sess .t { font-weight: 600; font-size: 13px; line-height: 1.3; }
+.sess .d { font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) {
+  .days { grid-template-columns: 1fr; }
+  .day { grid-template-columns: 64px 1fr; align-items: start; }
+  .day .dh { flex-direction: column; }
+  .day .list { display: grid; gap: 8px; }
+}
+
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; }
+.panel { min-width: 0; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+td.r, th.r { text-align: right; }
+.pace { font-weight: 600; white-space: nowrap; }
+.tablewrap { overflow-x: auto; }
+tr.now td { background: var(--accent-soft); }
+
+/* goal scale */
+.scale { position: relative; height: 64px; margin: 8px 6px 0; }
+.scale .track { position: absolute; left: 0; right: 0; top: 30px; height: 4px; border-radius: 2px; background: var(--line); }
+.scale .fill { position: absolute; left: 0; top: 30px; height: 4px; border-radius: 2px; background: var(--accent); }
+.mk { position: absolute; top: 0; transform: translateX(-50%); display: grid; justify-items: center; gap: 4px; font-size: 12px; white-space: nowrap; }
+.mk i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--surface); background: var(--c); margin-top: 18px; display: block; }
+.mk.top { top: -2px; } .mk.top i { margin-top: 0; order: 2; }
+.goals { display: grid; gap: 10px; margin-top: 18px; }
+.goal { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+
+/* chart */
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { fill: var(--muted); font: 11px var(--body); }
+.bar { cursor: default; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12px; padding: 6px 9px;
+  border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 8px)); }
+.key { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); margin-top: 8px; }
+.key span { display: inline-flex; gap: 6px; align-items: center; }
+.sw { width: 14px; height: 10px; border-radius: 2px; background: var(--accent); }
+.sw.t { background: none; border: 1.5px dashed var(--ink-2); }
+
+ul.rules { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--ink-2); max-width: 70ch; }
+footer { font-size: 12px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .weeknav button { transition: background .15s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow" id="blockdates"></div>
+      <h1 id="blockname"></h1>
+    </div>
+    <div style="display:grid;gap:6px;justify-items:end">
+      <div class="weekdots" id="weekdots" aria-hidden="true"></div>
+      <div class="small muted" id="weeklabel"></div>
+    </div>
+  </header>
+
+  <section id="next" class="next" aria-live="polite"></section>
+
+  <section>
+    <div class="weekhead">
+      <div><h2 id="wtitle"></h2><div class="small muted" id="wfocus"></div></div>
+      <div class="weeknav"><button id="prev" type="button">‹ Prev</button><button id="nextw" type="button">Next ›</button></div>
+    </div>
+    <div class="days" id="days"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>Paces</h2>
+      <div class="tablewrap"><table id="paces"></table></div>
+    </section>
+    <section class="panel">
+      <h2>Goals</h2>
+      <div class="small muted">Fitness score (VDOT)</div>
+      <div class="scale" id="scale"></div>
+      <div class="goals" id="goals"></div>
+    </section>
+  </div>
+
+  <section>
+    <h2>Weekly running volume</h2>
+    <div class="chart" id="chart"></div>
+    <div class="key"><span><i class="sw"></i>Done (km)</span><span><i class="sw t"></i>Planned</span></div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>Block plan</h2>
+      <div class="tablewrap"><table id="blocktable"></table></div>
+    </section>
+    <section class="panel">
+      <h2>Rules</h2>
+      <ul class="rules" id="rules"></ul>
+    </section>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+const D = {"generated": "2026-11-15T14:16", "last_sync": "2026-11-15T14:16:21", "block": {"id": "2026-block1", "name": "Consistency + base", "start": "2026-11-16", "end": "2026-12-13", "goals": ["Run 4x/week, every week (no gaps)", "Easy runs truly easy (pace + talk test)", "5K time trial in week 2 -> real fitness + HR zones", "Volume ~20 -> ~27 km/week, then a lighter week"], "based_on": "analysis/2026-11-15-baseline.md"}, "rules": ["Hard run never the day after a leg session.", "Legs heavy on Tuesday (after Monday legs)? Move the strides to Wednesday.", "Missed a run? Skip it, do not stack two runs the next day.", "Ill or unusual pain -> rest and tell Claude.", "Saturday = rest or optional easy bike 30-45 min."], "paces": [{"name": "easy", "min": "6:15", "max": "6:40", "note": "full sentences possible; never faster than 6:00"}, {"name": "long", "min": "6:20", "max": "6:45"}, {"name": "threshold", "min": "4:50", "max": "5:00", "note": "comfortably hard, could say a few words"}, {"name": "interval", "min": "4:25", "max": "4:35"}, {"name": "stride", "note": "20 s relaxed-fast (~5K effort or quicker), full recovery"}], "weeks": [{"week": "2026-W47", "start": "2026-11-16", "focus": "Back into rhythm after a week without runs", "target_km": 20, "sessions": [{"date": "2026-11-16", "day": "Mon", "sport": "strength", "type": "strength", "title": "Calisthenics - legs (app)", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-11-17", "day": "Tue", "sport": "run", "type": "easy", "title": "Easy run + strides", "purpose": "", "est_km": 5, "steps": ["30′ easy 6:15–6:40", "6 × (20″ stride / 60″ recovery)"]}, {"date": "2026-11-18", "day": "Wed", "sport": "strength", "type": "strength", "title": "Calisthenics - upper (app)", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-11-18", "day": "Wed", "sport": "run", "type": "easy", "title": "Short easy run", "purpose": "", "est_km": 4, "steps": ["25′ easy 6:15–6:40"]}, {"date": "2026-11-19", "day": "Thu", "sport": "run", "type": "quality", "title": "Fartlek 6 x 1 min", "purpose": "Wake up the legs without a big load", "est_km": 5.5, "steps": ["15′ warm-up", "6 × (1′ @ 4:45–5:00 / 1′ recovery)", "10′ cool-down"]}, {"date": "2026-11-20", "day": "Fri", "sport": "strength", "type": "strength", "title": "Calisthenics - legs (app)", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-11-21", "day": "Sat", "sport": "rest", "type": "rest", "title": "Rest or easy bike 30-45 min", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-11-22", "day": "Sun", "sport": "run", "type": "long", "title": "Long run", "purpose": "", "est_km": 7, "steps": ["45′ long 6:20–6:45"]}]}, {"week": "2026-W48", "start": "2026-11-23", "focus": "5K time trial on Thursday", "target_km": 24, "sessions": [{"date": "2026-11-23", "day": "Mon", "sport": "strength", "type": "strength", "title": "Calisthenics - legs (app)", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-11-24", "day": "Tue", "sport": "run", "type": "easy", "title": "Easy run + strides", "purpose": "", "est_km": 5, "steps": ["30′ easy 6:15–6:40", "6 × (20″ stride / 60″ recovery)"]}, {"date": "2026-11-25", "day": "Wed", "sport": "strength", "type": "strength", "title": "Calisthenics - upper (app), keep it light", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-11-25", "day": "Wed", "sport": "run", "type": "easy", "title": "Short easy run", "purpose": "", "est_km": 3.5, "steps": ["20′ easy 6:15–6:40"]}, {"date": "2026-11-26", "day": "Thu", "sport": "run", "type": "test", "title": "5K time trial", "purpose": "Sets current fitness (VDOT), training paces and HR zones. Flat route or track. Aim for even pacing: start ~4:40/km, speed up only after 3 km if you feel good. Sprint the last 200-300 m (gives max HR).", "est_km": 8, "steps": ["15′ warm-up", "4 × (20″ stride / 40″ recovery)", "2′ recovery", "5 km all-out, even pace", "10′ cool-down"]}, {"date": "2026-11-27", "day": "Fri", "sport": "strength", "type": "strength", "title": "Calisthenics - legs (app)", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-11-28", "day": "Sat", "sport": "rest", "type": "rest", "title": "Rest or easy bike 30-45 min", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-11-29", "day": "Sun", "sport": "run", "type": "long", "title": "Long run", "purpose": "", "est_km": 8, "steps": ["50′ long 6:20–6:45"]}]}, {"week": "2026-W49", "start": "2026-11-30", "focus": "First threshold session (paces updated from the time trial)", "target_km": 27, "sessions": [{"date": "2026-11-30", "day": "Mon", "sport": "strength", "type": "strength", "title": "Calisthenics - legs (app)", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-12-01", "day": "Tue", "sport": "run", "type": "easy", "title": "Easy run + strides", "purpose": "", "est_km": 6, "steps": ["35′ easy 6:15–6:40", "8 × (20″ stride / 60″ recovery)"]}, {"date": "2026-12-02", "day": "Wed", "sport": "strength", "type": "strength", "title": "Calisthenics - upper (app)", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-12-02", "day": "Wed", "sport": "run", "type": "easy", "title": "Short easy run", "purpose": "", "est_km": 4, "steps": ["25′ easy 6:15–6:40"]}, {"date": "2026-12-03", "day": "Thu", "sport": "run", "type": "quality", "title": "Threshold 3 x 8 min", "purpose": "Raise the pace you can hold for a long time (key for the 10K)", "est_km": 8, "steps": ["15′ warm-up", "3 × (8′ @ 4:50–5:00 / 2′ recovery)", "10′ cool-down"]}, {"date": "2026-12-04", "day": "Fri", "sport": "strength", "type": "strength", "title": "Calisthenics - legs (app)", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-12-05", "day": "Sat", "sport": "rest", "type": "rest", "title": "Rest or easy bike 30-45 min", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-12-06", "day": "Sun", "sport": "run", "type": "long", "title": "Long run", "purpose": "", "est_km": 9, "steps": ["60′ long 6:20–6:45"]}]}, {"week": "2026-W50", "start": "2026-12-07", "focus": "Lighter week - absorb the training", "target_km": 21, "sessions": [{"date": "2026-12-07", "day": "Mon", "sport": "strength", "type": "strength", "title": "Calisthenics - legs (app)", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-12-08", "day": "Tue", "sport": "run", "type": "easy", "title": "Easy run + strides", "purpose": "", "est_km": 5, "steps": ["30′ easy 6:15–6:40", "6 × (20″ stride / 60″ recovery)"]}, {"date": "2026-12-09", "day": "Wed", "sport": "strength", "type": "strength", "title": "Calisthenics - upper (app)", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-12-09", "day": "Wed", "sport": "run", "type": "easy", "title": "Short easy run", "purpose": "", "est_km": 3.5, "steps": ["20′ easy 6:15–6:40"]}, {"date": "2026-12-10", "day": "Thu", "sport": "run", "type": "quality", "title": "Intervals 5 x 2 min", "purpose": "Touch 10K-plus speed, short and sharp, low total load", "est_km": 6, "steps": ["15′ warm-up", "5 × (2′ @ 4:25–4:35 / 2′ recovery)", "10′ cool-down"]}, {"date": "2026-12-11", "day": "Fri", "sport": "strength", "type": "strength", "title": "Calisthenics - legs (app)", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-12-12", "day": "Sat", "sport": "rest", "type": "rest", "title": "Rest or easy bike 30-45 min", "purpose": "", "est_km": null, "steps": []}, {"date": "2026-12-13", "day": "Sun", "sport": "run", "type": "long", "title": "Long run", "purpose": "", "est_km": 7.5, "steps": ["50′ long 6:20–6:45"]}]}], "done": {"2026-10-08": [{"kind": "run", "km": 5.02, "min": 34.4, "pace": "6:56", "hr": "149"}], "2026-10-09": [{"kind": "strength", "km": 0.0, "min": 12.1, "pace": "", "hr": "98"}], "2026-10-10": [{"kind": "cycling", "km": 9.65, "min": 35.4, "pace": "3:51", "hr": "143"}], "2026-10-12": [{"kind": "strength", "km": 0.0, "min": 10.3, "pace": "", "hr": "95"}], "2026-10-13": [{"kind": "run", "km": 4.65, "min": 27.8, "pace": "6:00", "hr": "164"}], "2026-10-14": [{"kind": "strength", "km": 0.0, "min": 9.6, "pace": "", "hr": "95"}], "2026-10-15": [{"kind": "run", "km": 5.09, "min": 30.0, "pace": "5:56", "hr": "164"}], "2026-10-18": [{"kind": "run", "km": 5.36, "min": 31.0, "pace": "5:47", "hr": "169"}], "2026-10-19": [{"kind": "strength", "km": 0.0, "min": 13.8, "pace": "", "hr": "100"}], "2026-10-22": [{"kind": "run", "km": 5.99, "min": 38.0, "pace": "6:23", "hr": "163"}, {"kind": "strength", "km": 0.0, "min": 9.9, "pace": "", "hr": "107"}], "2026-10-23": [{"kind": "strength", "km": 0.0, "min": 10.4, "pace": "", "hr": "97"}], "2026-10-24": [{"kind": "run", "km": 4.56, "min": 35.2, "pace": "7:47", "hr": "138"}], "2026-10-26": [{"kind": "run", "km": 4.66, "min": 36.3, "pace": "8:29", "hr": "142"}], "2026-10-27": [{"kind": "run", "km": 5.11, "min": 41.2, "pace": "8:28", "hr": "133"}, {"kind": "strength", "km": 0.0, "min": 21.3, "pace": "", "hr": "126"}], "2026-10-29": [{"kind": "run", "km": 6.65, "min": 40.0, "pace": "6:03", "hr": "165"}], "2026-10-30": [{"kind": "strength", "km": 0.0, "min": 10.7, "pace": "", "hr": "98"}], "2026-10-31": [{"kind": "run", "km": 4.49, "min": 34.8, "pace": "8:34", "hr": "126"}, {"kind": "strength", "km": 0.0, "min": 17.0, "pace": "", "hr": "125"}], "2026-11-02": [{"kind": "run", "km": 4.42, "min": 35.6, "pace": "8:16", "hr": "116"}], "2026-11-03": [{"kind": "strength", "km": 0.0, "min": 16.5, "pace": "", "hr": "118"}, {"kind": "run", "km": 5.82, "min": 34.8, "pace": "6:00", "hr": "168"}], "2026-11-05": [{"kind": "run", "km": 7.42, "min": 43.8, "pace": "5:57", "hr": "165"}], "2026-11-09": [{"kind": "strength", "km": 0.0, "min": 33.9, "pace": "", "hr": "105"}], "2026-11-11": [{"kind": "strength", "km": 0.0, "min": 38.9, "pace": "", "hr": "103"}], "2026-11-13": [{"kind": "strength", "km": 0.0, "min": 67.1, "pace": "", "hr": "114"}]}, "history": [{"start": "2026-08-24", "km": 14.1, "runs": 2, "target": null}, {"start": "2026-08-31", "km": 0.0, "runs": 0, "target": null}, {"start": "2026-09-07", "km": 0.0, "runs": 0, "target": null}, {"start": "2026-09-14", "km": 7.3, "runs": 1, "target": null}, {"start": "2026-09-21", "km": 10.3, "runs": 1, "target": null}, {"start": "2026-09-28", "km": 11.2, "runs": 2, "target": null}, {"start": "2026-10-05", "km": 10.8, "runs": 2, "target": null}, {"start": "2026-10-12", "km": 15.1, "runs": 3, "target": null}, {"start": "2026-10-19", "km": 10.6, "runs": 2, "target": null}, {"start": "2026-10-26", "km": 20.9, "runs": 4, "target": null}, {"start": "2026-11-02", "km": 17.7, "runs": 3, "target": null}, {"start": "2026-11-09", "km": 0.0, "runs": 0, "target": null}, {"start": "2026-11-16", "km": 0.0, "runs": 0, "target": 20}, {"start": "2026-11-23", "km": 0.0, "runs": 0, "target": 24}, {"start": "2026-11-30", "km": 0.0, "runs": 0, "target": 27}, {"start": "2026-12-07", "km": 0.0, "runs": 0, "target": 21}], "athlete": {"current_vdot": 42.0, "current_vdot_source": "10K race 2026-09-27 + spring training runs", "goals": [{"label": "Sub-45 10K", "time": "45:00", "pace": "4:30", "vdot": 45.3, "target": "Jan/Feb 2027"}, {"label": "Sub-42 10K", "time": "42:00", "pace": "4:12", "vdot": 49.1, "target": "re-evaluate after sub-45"}], "results": [{"date": "2026-09-27", "label": "10K race (Polimi)", "time": "49:00", "vdot": 41.0}]}};
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const parse = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const nice = (s, opts = { weekday: "short", day: "numeric", month: "short" }) => parse(s).toLocaleDateString("en-GB", opts);
+const TODAY = iso(new Date());
+const SYNC_DAY = (D.last_sync || "").slice(0, 10);
+const COLOR = { easy: "var(--easy)", long: "var(--long)", quality: "var(--quality)", test: "var(--test)", strength: "var(--strength)", rest: "var(--rest)" };
+const TYPE_LABEL = { easy: "Easy", long: "Long run", quality: "Quality", test: "Test", strength: "Strength", rest: "Rest" };
+const colorOf = (s) => COLOR[s.sport === "run" ? s.type : s.sport] || "var(--accent)";
+
+// status of a planned session from synced activities
+const used = {};
+function status(s) {
+  if (s.sport === "rest") return { key: "rest" };
+  const kind = s.sport === "run" ? "run" : "strength";
+  const acts = (D.done[s.date] || []).filter((a) => a.kind === kind);
+  const k = s.date + kind; used[k] = used[k] || 0;
+  const a = acts[used[k]];
+  if (a) { used[k]++; return { key: "done", act: a }; }
+  if (s.date === TODAY) return { key: "today" };
+  if (s.date < TODAY) return s.date > SYNC_DAY ? { key: "pending" } : { key: "missed" };
+  return { key: "upcoming" };
+}
+const all = D.weeks.flatMap((w) => w.sessions.map((s) => ({ ...s, week: w.week })));
+all.forEach((s) => (s.st = status(s)));
+
+function chip(st) {
+  if (st.key === "done") {
+    const a = st.act;
+    return a.kind === "run"
+      ? `<span class="chip done">✓ ${a.km.toFixed(1)} km · ${esc(a.pace)}/km${a.hr ? " · " + esc(a.hr) + " bpm" : ""}</span>`
+      : `<span class="chip done">✓ Done · ${Math.round(a.min)}′</span>`;
+  }
+  if (st.key === "today") return `<span class="chip today">Today</span>`;
+  if (st.key === "missed") return `<span class="chip missed">Missed</span>`;
+  if (st.key === "pending") return `<span class="chip">Not synced yet</span>`;
+  return "";
+}
+
+// header
+const b = D.block;
+$("blockname").textContent = `Block 1 · ${b.name}`;
+$("blockdates").textContent = `${nice(b.start, { day: "numeric", month: "short" })} – ${nice(b.end, { day: "numeric", month: "short", year: "numeric" })}`;
+let cur = D.weeks.findIndex((w) => TODAY >= w.start && TODAY < addDays(w.start, 7));
+if (cur < 0) cur = TODAY < D.weeks[0].start ? 0 : D.weeks.length - 1;
+const nowIdx = cur;
+$("weekdots").innerHTML = D.weeks.map((w, i) => `<span class="${i < nowIdx ? "past" : i === nowIdx ? "now" : ""}"></span>`).join("");
+$("weeklabel").textContent = TODAY < b.start ? `Starts ${nice(b.start)}` : TODAY > b.end ? "Block finished" : `Week ${nowIdx + 1} of ${D.weeks.length}`;
+
+// next up
+(function () {
+  const pending = all.filter((s) => s.sport !== "rest" && s.date >= TODAY && s.st.key !== "done");
+  const nextRun = pending.find((s) => s.sport === "run");
+  const el = $("next");
+  if (!nextRun) { el.innerHTML = `<div class="eyebrow">Next up</div><h3>Block complete</h3><p class="purpose">Time for the check-in and the next block.</p>`; return; }
+  const sameDay = pending.filter((s) => s.date === nextRun.date && s !== nextRun);
+  const todayOther = pending.filter((s) => s.date === TODAY && s.date !== nextRun.date);
+  const when = nextRun.date === TODAY ? "Today" : nextRun.date === addDays(TODAY, 1) ? "Tomorrow" : nice(nextRun.date, { weekday: "long" });
+  el.style.setProperty("--c", colorOf(nextRun));
+  el.innerHTML = `
+    <div class="when"><span class="num">${when}</span><span class="muted small">${nice(nextRun.date)} · ${TYPE_LABEL[nextRun.type] || ""}${nextRun.est_km ? ` · ~${nextRun.est_km} km` : ""}</span></div>
+    <h3>${esc(nextRun.title)}</h3>
+    ${nextRun.purpose ? `<p class="purpose">${esc(nextRun.purpose)}</p>` : ""}
+    <ol class="steps">${nextRun.steps.map((t) => `<li>${esc(t)}</li>`).join("")}</ol>
+    ${[...todayOther, ...sameDay].length ? `<div class="also">${[...todayOther, ...sameDay].map((s) => `<span class="chip"><i class="dot" style="--c:${colorOf(s)}"></i>${s.date === TODAY ? "Today" : "Same day"}: ${esc(s.title)}</span>`).join("")}</div>` : ""}
+    <div class="small muted">On your watch: Garmin calendar → “${esc(nextRun.week.slice(-3))} ${esc(nextRun.day)} - ${esc(nextRun.title)}”</div>`;
+})();
+
+// week view
+function renderWeek(i) {
+  const w = D.weeks[i];
+  $("wtitle").textContent = i === nowIdx && TODAY >= b.start && TODAY <= b.end ? `This week · ${w.week.slice(-3)}` : `Week ${i + 1} · ${w.week.slice(-3)}`;
+  const doneKm = all.filter((s) => s.week === w.week && s.st.key === "done" && s.st.act.kind === "run").reduce((t, s) => t + s.st.act.km, 0);
+  $("wfocus").textContent = `${w.focus} · ${doneKm.toFixed(1)} of ~${w.target_km} km`;
+  let html = "";
+  for (let d = 0; d < 7; d++) {
+    const date = addDays(w.start, d);
+    const ss = all.filter((s) => s.date === date);
+    html += `<div class="day${date === TODAY ? " is-today" : ""}"><div class="dh"><span>${nice(date, { weekday: "short" })}</span><span class="tab">${nice(date, { day: "numeric", month: "short" })}</span></div><div class="list">` +
+      (ss.length ? ss.map((s) => `<div class="sess" style="--c:${colorOf(s)}"><div class="t">${esc(s.title)}</div>${s.steps.length ? `<div class="d">${esc(s.steps.join(" · "))}</div>` : ""}${chip(s.st)}</div>`).join("")
+        : `<div class="sess" style="--c:var(--rest)"><div class="t muted">—</div></div>`) + `</div></div>`;
+  }
+  $("days").innerHTML = html;
+  $("prev").disabled = i === 0; $("nextw").disabled = i === D.weeks.length - 1;
+}
+$("prev").onclick = () => renderWeek(cur = Math.max(0, cur - 1));
+$("nextw").onclick = () => renderWeek(cur = Math.min(D.weeks.length - 1, cur + 1));
+renderWeek(cur);
+
+// paces
+const PACE_LABEL = { easy: "Easy", long: "Long run", threshold: "Threshold", interval: "Interval", stride: "Strides" };
+$("paces").innerHTML = `<tr><th>Type</th><th>min/km</th><th>How it feels</th></tr>` + D.paces.map((p) =>
+  `<tr><td>${PACE_LABEL[p.name] || esc(p.name)}</td><td class="pace">${p.min ? `${esc(p.min)}–${esc(p.max)}` : "fast"}</td><td class="small muted">${esc(p.note || "")}</td></tr>`).join("");
+
+// goals scale
+(function () {
+  const A = D.athlete, lo = 38, hi = 52, x = (v) => ((v - lo) / (hi - lo)) * 100;
+  const mks = [
+    ...A.results.map((r) => ({ v: r.vdot, l: `${r.time} race`, c: "var(--ink-2)", top: true })),
+    { v: A.current_vdot, l: `Now ~${A.current_vdot}`, c: "var(--accent)", top: false },
+    ...A.goals.map((g) => ({ v: g.vdot, l: g.label.replace(" 10K", ""), c: "var(--test)", top: true })),
+  ];
+  $("scale").innerHTML = `<div class="track"></div><div class="fill" style="width:${x(A.current_vdot)}%"></div>` +
+    mks.map((m) => `<div class="mk${m.top ? " top" : ""}" style="left:${x(m.v)}%;--c:${m.c}"><i></i><span class="tab">${esc(m.l)}</span></div>`).join("");
+  $("goals").innerHTML = A.goals.map((g) => `<div class="goal"><div><strong>${esc(g.label)}</strong> <span class="muted small tab">${esc(g.time)} · ${esc(g.pace)}/km</span></div><div class="small muted">${esc(g.target)}</div></div>`).join("") +
+    `<div class="small muted">Current level from: ${esc(A.current_vdot_source)}</div>`;
+})();
+
+// weekly volume chart
+(function () {
+  const H = D.history, W = 720, Ht = 200, pl = 28, pb = 26, pt = 8;
+  const max = Math.max(10, ...H.map((h) => Math.max(h.km, h.target || 0)));
+  const top = Math.ceil(max / 10) * 10, cw = (W - pl) / H.length, bw = Math.min(26, cw - 6);
+  const y = (v) => pt + (Ht - pt - pb) * (1 - v / top);
+  let s = `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Weekly running kilometres">`;
+  for (let v = 0; v <= top; v += 10) s += `<line x1="${pl}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${pl - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  H.forEach((h, i) => {
+    const cx = pl + cw * i + cw / 2, x0 = cx - bw / 2, isNow = TODAY >= h.start && TODAY < addDays(h.start, 7);
+    if (h.target) s += `<rect x="${x0}" y="${y(h.target)}" width="${bw}" height="${y(0) - y(h.target)}" rx="4" fill="none" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+    if (h.km > 0) { const yt = y(h.km), r = Math.min(4, (y(0) - yt) / 2);
+      s += `<path d="M${x0},${y(0)} V${yt + r} Q${x0},${yt} ${x0 + r},${yt} H${x0 + bw - r} Q${x0 + bw},${yt} ${x0 + bw},${yt + r} V${y(0)} Z" fill="var(--accent)"/>`; }
+    s += `<rect class="bar" tabindex="0" data-i="${i}" x="${pl + cw * i}" y="${pt}" width="${cw}" height="${Ht - pt - pb}" fill="transparent"/>`;
+    if (i % 2 === 0 || isNow) s += `<text x="${cx}" y="${Ht - 8}" text-anchor="middle"${isNow ? ' style="fill:var(--ink);font-weight:600"' : ""}>${nice(h.start, { day: "numeric", month: "short" })}</text>`;
+  });
+  s += `</svg><div class="tip" id="tip" hidden></div>`;
+  $("chart").innerHTML = s;
+  const tip = $("tip"), svg = $("chart").querySelector("svg");
+  const show = (e) => {
+    const h = H[+e.target.dataset.i], r = svg.getBoundingClientRect(), sc = r.width / W;
+    tip.innerHTML = `Week of ${nice(h.start, { day: "numeric", month: "short" })}: <b>${h.km} km</b>, ${h.runs} run${h.runs === 1 ? "" : "s"}${h.target ? ` · plan ~${h.target} km` : ""}`;
+    tip.style.left = `${(pl + cw * (+e.target.dataset.i) + cw / 2) * sc}px`;
+    tip.style.top = `${y(Math.max(h.km, h.target || 0)) * sc}px`; tip.hidden = false;
+  };
+  svg.querySelectorAll(".bar").forEach((el) => { el.addEventListener("mouseenter", show); el.addEventListener("focus", show);
+    el.addEventListener("mouseleave", () => (tip.hidden = true)); el.addEventListener("blur", () => (tip.hidden = true)); });
+})();
+
+// block table
+$("blocktable").innerHTML = `<tr><th>Week</th><th>Focus</th><th class="r">Plan</th><th class="r">Done</th></tr>` + D.weeks.map((w, i) => {
+  const km = all.filter((s) => s.week === w.week && s.st.key === "done" && s.st.act.kind === "run").reduce((t, s) => t + s.st.act.km, 0);
+  const runs = w.sessions.filter((s) => s.sport === "run").length;
+  return `<tr class="${i === nowIdx && TODAY >= b.start && TODAY <= b.end ? "now" : ""}"><td class="tab">${w.week.slice(-3)}<div class="small muted">${nice(w.start, { day: "numeric", month: "short" })}</div></td><td class="small">${esc(w.focus)}</td><td class="r tab">${w.target_km} km<div class="small muted">${runs} runs</div></td><td class="r tab">${w.start <= TODAY ? km.toFixed(1) + " km" : "–"}</td></tr>`;
+}).join("");
+
+$("rules").innerHTML = D.rules.map((r) => `<li>${esc(r)}</li>`).join("");
+$("foot").textContent = `Garmin data synced ${D.last_sync ? nice(D.last_sync.slice(0, 10)) + " " + D.last_sync.slice(11, 16) : "–"} · page built ${nice(D.generated.slice(0, 10))} ${D.generated.slice(11, 16)}`;
+</script>
